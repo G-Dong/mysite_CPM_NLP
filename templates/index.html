@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>>
+</head>
+<body>
+    <hl style="background-color: aquamarine;color:black;">Please enter description of candidate</hl>
+    <form action="/index/" mdethod="POST">
+        <input type="text" name= "description"/>
+        <input type="submit" value="submit"/>
+    </form>
+    <hr />
+    <h1 style="background-color: aquamarine;color:black;">This candidate has following characteristic(s)</h1>
+    <table border="4">
+        <thead>
+            <th>Characteristic(s) within Competence Model of CPM-HRM</th>
+        </thead>
+        <tbody>
+            {% for line in data %}
+                <tr>
+                    <td>{{ line.Competence_model }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script src="/static/js/jquery-1.12.4.js"></script>
+</body>
+</html>
+
