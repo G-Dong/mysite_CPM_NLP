@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.shortcuts import HttpResponse
-
+import sys
+sys.path.append('../mysite/')
 from gensim import corpora, models, similarities
-from nlp import util
+from core import util
 #from util import read_xlsx_xlrd, read_csv, read_csv_tag
 import logging
 from pprint import pprint
@@ -60,14 +61,11 @@ class Build_Corpora(object):
     def dictionary(self, path):
         dictionary = corpora.Dictionary(self.texts)
         dictionary.save(path)
-        #print(dictionary)
-        #print(dictionary.token2id)
         return dictionary
 
     def corpus(self, path, dictionary):
         corpus = [dictionary.doc2bow(text) for text in self.texts]
         corpora.MmCorpus.serialize(path, corpus)  # store to disk, for later use
-       # print(corpus)
         return corpus
 
     def save_dictionary(self, path):
@@ -129,28 +127,27 @@ user_list = [
 
 
 def index(request):
-    path = 'C:/Users/kenwa/Desktop/cpm_demo/challenge/mysite/nlp/data/Competency_model_2_dimensional.csv'
+    path = '../mysite/data/Competency_model_2_dimensional.csv'
     bc_positive = Build_Corpora()
     for i in range(29):
         # cell_positive = [i, 1, 2] # col: B
         content_cache_1 = util.read_csv_tag(path, tag='Skilled')[i]
         content_cache_0 = util.read_csv_tag(path, tag='Competence')[i]
         content_cache = content_cache_0 + ' ' + content_cache_1
-        print(content_cache)
+        #print(content_cache)
         Positive_documents = clean_text(content_cache)
-        print(Positive_documents)
         documents_compe_positive = bc_positive.add(Positive_documents)
 
     bc_positive.clean()
-    dictionary = bc_positive.dictionary('C:/Users/kenwa/Desktop/cpm_demo/challenge/configure/positive.dict')
+    dictionary = bc_positive.dictionary('../mysite/configure/positive.dict')
     # print(new_vec)
 
     if request.method == 'GET':
         description = request.GET.get('description', 'Test')
         new_doc = clean_text(description)
-        print(new_doc)
+        #print(new_doc)
         vec_bow = dictionary.doc2bow(new_doc.lower().split())
-        corpus = bc_positive.corpus('C:/Users/kenwa/Desktop/cpm_demo/challenge/configure/positive.mm', dictionary)
+        corpus = bc_positive.corpus('../mysite/configure/positive.mm', dictionary)
         lda = models.LdaModel(corpus, id2word=dictionary, num_topics=100)
         corpus_lda = lda[corpus]
         vec_lda = lda[vec_bow]
@@ -167,5 +164,4 @@ def index(request):
         tmp = {"Competence_model": competence_character}
         user_list.append(tmp)
         print(user_list)
-   #  return HttpResponse('Hello world')
     return render(request, "index.html", {'data': user_list})
